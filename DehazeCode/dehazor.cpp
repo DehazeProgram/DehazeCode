@@ -189,7 +189,7 @@ void Dehazor::GenerateDehazeImage()
 
     cv::merge(dehazes,dehazeImage);
 //    ColorCorrect::AutoColor(dehazeImage,0.001,0.001);
-    cv::imwrite("E:\\tempimage\\images\\dehazes.jpg",dehazeImage);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\dehazes.jpg",dehazeImage);
     cv::imshow("dehaze",dehazeImage);
 
     std::cout <<"dehaze finished"<<std::endl;

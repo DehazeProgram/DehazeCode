@@ -46,7 +46,7 @@ void Filter::MinFilter_2D(cv::Mat &src, cv::Mat &dst, int windowsize)
     int r = windowsize/2;
     cv::Mat src_border;
     cv::copyMakeBorder(src,src_border,r,r,r,r,src.type(),cv::Scalar(255));
-    std::deque< std::deque<point>> col_mins;
+    std::deque< std::deque<point> > col_mins;
     int row =src_border.rows;
     int col =src_border.cols;
 
