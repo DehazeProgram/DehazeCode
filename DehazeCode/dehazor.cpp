@@ -26,9 +26,7 @@ void Dehazor::init()
     std::cout <<"row: "<<rawImage.rows<<" cols: "<<rawImage.cols<<std::endl;
     darkChannelImage = cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
     dehazeImage      = cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
-    transmission_b   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
-    transmission_g   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
-    transmission_r   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
+    transmission   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
 
     cv::split(rawImage,channelLayers);
     rawImage_b =channelLayers[0];
@@ -96,46 +94,34 @@ void Dehazor::GenerateAtmosphericRadiation()
 
 void Dehazor::GenereteTransmmision()
 {
-    cv::Mat trans_t_b(transmission_b.rows,transmission_b.cols, CV_32F);
-    cv::Mat trans_t_g(transmission_g.rows,transmission_g.cols, CV_32F);
-    cv::Mat trans_t_r(transmission_r.rows,transmission_r.cols, CV_32F);
+    cv::Mat_<float> trans_t= cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
 
-    for(int i =0;i< trans_t_b.rows;++i)
+    for(int i =0;i< transmission.rows;++i)
     {
-        for(int j =0;j< trans_t_b.cols;++j)
+        for(int j =0;j< transmission.cols;++j)
         {
             float dark = static_cast<float>(darkChannelImage.at<uchar>(i,j));
-            float temp_b =(1.0 - _eps*(dark/_A.b));
-            float temp_g =(1.0 - _eps*(dark/_A.g));
-            float temp_r =(1.0 - _eps*(dark/_A.r));
+            float temp_b =static_cast<float>(1.0 - _eps*(dark/_A.b));
+            float temp_g =static_cast<float>(1.0 - _eps*(dark/_A.g));
+            float temp_r =static_cast<float>(1.0 - _eps*(dark/_A.r));
+            float t;
 
-            if(temp_b <0)
-                trans_t_b.at<float>(i,j) =0;
-            else if(temp_b >1)
-                trans_t_b.at<uchar>(i,j) =1;
-            else
-                trans_t_b.at<float>(i,j) =temp_b;
+            if(temp_b <0) temp_b =0;
+            else if(temp_b >1) temp_b =1;
 
-            if(temp_g <0)
-                trans_t_g.at<float>(i,j) =0;
-            else if(temp_g >1)
-                trans_t_g.at<uchar>(i,j) =1;
-            else
-                trans_t_g.at<float>(i,j) =temp_g;
+            if(temp_g <0) temp_g =0;
+            else if(temp_g >1) temp_g =1;
 
-            if(temp_r <0)
-                trans_t_r.at<float>(i,j) =0;
-            else if(temp_r >1)
-                trans_t_r.at<uchar>(i,j) =1;
-            else
-                trans_t_r.at<float>(i,j) =temp_r;
+            if(temp_r <0) temp_r =0;
+            else if(temp_r >1) temp_r =1;
+
+            t =((temp_b>temp_g)?temp_b:temp_g);
+            t =((t >temp_r)?t:temp_r);
+            trans_t.at<float>(i,j) =t;
         }
     }
-    Filter::GuideFilter_Single(rawImage_b,trans_t_b,transmission_b,_minFliterWindowSize*4,_eps);
-    Filter::GuideFilter_Single(rawImage_b,trans_t_g,transmission_g,_minFliterWindowSize*4,_eps);
-    Filter::GuideFilter_Single(rawImage_b,trans_t_r,transmission_r,_minFliterWindowSize*4,_eps);
-    //    filter.guideFilter_single(rawImage_b,trans_t,transmission,_minFliterWindowSize*4,_eps);
-    cv::imshow("transmission",transmission_b);
+    Filter::GuideFilter_Single(rawImage_b,trans_t,transmission,_minFliterWindowSize*4,_eps);
+    cv::imshow("transmission",transmission);
 
     std::cout <<"t generated!"<<std::endl;
 
@@ -153,20 +139,14 @@ void Dehazor::GenerateDehazeImage()
     {
         for(int j=0;j< col;++j)
         {
-            float t_b = transmission_b.at<float>(i,j);
-            float t_g = transmission_g.at<float>(i,j);
-            float t_r = transmission_r.at<float>(i,j);
+            float t = transmission.at<float>(i,j);
 
-            if(t_b <_t0)
-                t_b= _t0;
-            if(t_g <_t0)
-                t_g= _t0;
-            if(t_r <_t0)
-                t_r= _t0;
+            if(t <_t0)
+                t= _t0;
 
-            int temp_b = (int)((rawImage_b.at<uchar>(i,j)-_A.b)/t_b +_A.b);
-            int temp_g = (int)((rawImage_g.at<uchar>(i,j)-_A.g)/t_g +_A.g);
-            int temp_r = (int)((rawImage_r.at<uchar>(i,j)-_A.r)/t_r +_A.r);
+            int temp_b = (int)((rawImage_b.at<uchar>(i,j)-_A.b)/t +_A.b);
+            int temp_g = (int)((rawImage_g.at<uchar>(i,j)-_A.g)/t +_A.g);
+            int temp_r = (int)((rawImage_r.at<uchar>(i,j)-_A.r)/t +_A.r);
 
             temp_b = ((temp_b>_max_A)?rawImage_b.at<uchar>(i,j):temp_b);
             temp_g = ((temp_g>_max_A)?rawImage_g.at<uchar>(i,j):temp_g);
@@ -189,7 +169,7 @@ void Dehazor::GenerateDehazeImage()
 
     cv::merge(dehazes,dehazeImage);
 //    ColorCorrect::AutoColor(dehazeImage,0.001,0.001);
-    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\dehazes.jpg",dehazeImage);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_dehaze.jpg",dehazeImage);
     cv::imshow("dehaze",dehazeImage);
 
     std::cout <<"dehaze finished"<<std::endl;

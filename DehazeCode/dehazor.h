@@ -32,9 +32,7 @@ private:
     cv::Mat rawImage_g;
     cv::Mat rawImage_r;
     cv::Mat darkChannelImage;
-    cv::Mat transmission_b;
-    cv::Mat transmission_g;
-    cv::Mat transmission_r;
+    cv::Mat transmission;
     cv::Mat dehazeImage;
     std::vector<cv::Mat > channelLayers;
 

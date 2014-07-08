@@ -28,3 +28,4 @@ else:unix: LIBS += -L$$OUT_PWD/../BasicProcessing/ -lbasicprocessing
 
 INCLUDEPATH += $$PWD/../BasicProcessing
 DEPENDPATH += $$PWD/../BasicProcessing
+
