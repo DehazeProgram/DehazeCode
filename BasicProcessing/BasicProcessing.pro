@@ -14,7 +14,7 @@ HEADERS += filter.h\
 SOURCES += filter.cpp\
         colorcorrect.cpp
 		
-DESTDIR = ../lib
+DESTDIR = ../lib/BasicProcessing
 
 
 win32:CONFIG(release, debug|release):LIBS += -LC:/OSGeo4W64/lib/ -lopencv_core248 -lopencv_highgui248 -lopencv_gpu248 -lopencv_imgproc248 -lopencv_features2d248 -lopencv_photo248

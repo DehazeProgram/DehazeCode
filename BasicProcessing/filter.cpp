@@ -31,7 +31,6 @@ void Filter::DarkImageFilter(cv::Mat& src, int windowsize, cv::Mat& dst)
             img.at<uchar>(i,j) = ((temp<p2)?temp:p2);
         }
     }
-    //        std::cout << "pdark = " << std::endl << " " << (int)img.at<uchar>(255,255) << std::endl << std::endl;
     std::cout <<"MINFILTER START"<<std::endl;
     time_t startDark = clock();
 
