@@ -5,12 +5,12 @@ TEMPLATE =lib
 
 CONFIG +=staticlib
 
-TARGET = darkimagedehazor
+TARGET = medianfliterdehazor
 
-HEADERS += darkimagedehazor.h
+HEADERS += medianfliterdehazor.h
 		 
 
-SOURCES += darkimagedehazor.cpp
+SOURCES += medianfliterdehazor.cpp
 		
 DESTDIR = ../../lib/Dehazor
 

@@ -13,16 +13,16 @@ DarkImageDehazor::DarkImageDehazor(std::string &imagePath,  float eps, float t, 
     :_eps(eps),_max_A(max_a),_t0(t)
 {
     rawImage =cv::imread(imagePath,CV_LOAD_IMAGE_COLOR);
-    init();
+    Init();
 }
 
 
 DarkImageDehazor::DarkImageDehazor(cv::Mat &img):rawImage(img)
 {
-    init();
+    Init();
 }
 
-void DarkImageDehazor::init()
+void DarkImageDehazor::Init()
 {
     _minFliterWindowSize =((rawImage.cols>rawImage.rows)?rawImage.cols:rawImage.rows);
     _minFliterWindowSize *=0.02;
@@ -33,13 +33,10 @@ void DarkImageDehazor::init()
     transmission   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
 
     cv::split(rawImage,channelLayers);
-    rawImage_b =channelLayers[0];
-    rawImage_g =channelLayers[1];
-    rawImage_r =channelLayers[2];
 
 }
 
-void DarkImageDehazor::process()
+void DarkImageDehazor::Process()
 {
     GenerateDarkImage();
     GenerateAtmosphericRadiation();
@@ -126,7 +123,7 @@ void DarkImageDehazor::GenereteTransmmision()
             trans_t.at<float>(i,j) =t;
         }
     }
-    Filter::GuideFilter_Single(rawImage_b,trans_t,transmission,_minFliterWindowSize*4,_eps);
+    Filter::GuideFilter_Single(channelLayers[0],trans_t,transmission,_minFliterWindowSize*4,_eps);
 //    cv::imshow("transmission",transmission);
 
     //just for imwrite
@@ -157,13 +154,13 @@ void DarkImageDehazor::GenerateDehazeImage()
             if(t <_t0)
                 t= _t0;
 
-            int temp_b = (int)((rawImage_b.at<uchar>(i,j)-_A.b)/t +_A.b);
-            int temp_g = (int)((rawImage_g.at<uchar>(i,j)-_A.g)/t +_A.g);
-            int temp_r = (int)((rawImage_r.at<uchar>(i,j)-_A.r)/t +_A.r);
+            int temp_b = (int)((channelLayers[0].at<uchar>(i,j)-_A.b)/t +_A.b);
+            int temp_g = (int)((channelLayers[1].at<uchar>(i,j)-_A.g)/t +_A.g);
+            int temp_r = (int)((channelLayers[2].at<uchar>(i,j)-_A.r)/t +_A.r);
 
-            temp_b = ((temp_b>_max_A)?rawImage_b.at<uchar>(i,j):temp_b);
-            temp_g = ((temp_g>_max_A)?rawImage_g.at<uchar>(i,j):temp_g);
-            temp_r = ((temp_r>_max_A)?rawImage_r.at<uchar>(i,j):temp_r);
+            temp_b = ((temp_b>_max_A)?channelLayers[0].at<uchar>(i,j):temp_b);
+            temp_g = ((temp_g>_max_A)?channelLayers[1].at<uchar>(i,j):temp_g);
+            temp_r = ((temp_r>_max_A)?channelLayers[2].at<uchar>(i,j):temp_r);
 
             temp_b = ((temp_b <0)?0:temp_b);
             temp_g = ((temp_g <0)?0:temp_g);
@@ -182,7 +179,7 @@ void DarkImageDehazor::GenerateDehazeImage()
 
     cv::merge(dehazes,dehazeImage);
     ColorCorrect::AutoColor(dehazeImage,0.01,0.01);
-    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\tiananmen_dehaze.jpg",dehazeImage);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_darkchannel_dehaze.jpg",dehazeImage);
 //    cv::imshow("dehaze",dehazeImage);
 
     std::cout <<"dehaze finished"<<std::endl;

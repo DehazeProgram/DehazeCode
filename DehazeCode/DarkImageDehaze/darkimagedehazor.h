@@ -4,7 +4,7 @@
 #include <iostream>
 #include"filter.h"
 
-struct ARadiation
+struct ARadiation_DC
 {
     int r;
     int g;
@@ -24,13 +24,10 @@ public:
     inline void setGuideFliterWindowSize(int s){ _guideFliterWindowSize =s;}
     inline void setMaxAtmosphericRadiation(int a) {  _max_A =a;}
 
-    void process();
+    void Process();
 
 private:
     cv::Mat rawImage;
-    cv::Mat rawImage_b;
-    cv::Mat rawImage_g;
-    cv::Mat rawImage_r;
     cv::Mat darkChannelImage;
     cv::Mat transmission;
     cv::Mat dehazeImage;
@@ -41,10 +38,10 @@ private:
     float _max_A;
     float _eps;
     float _t0;
-    ARadiation _A;
+    ARadiation_DC _A;
 //    Filter filter;
 
-    void init();
+    void Init();
 
     void GenerateDarkImage();
     void GenerateAtmosphericRadiation();
