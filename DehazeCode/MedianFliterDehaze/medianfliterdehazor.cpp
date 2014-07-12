@@ -35,24 +35,27 @@ void MedianFliterDehazor::Init()
     darkImage =cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
 
     cv::split(rawImage,rawImages);
-//    rawImage_b =rawImages[0];
+
 }
 
 void MedianFliterDehazor::GenerateAverageImage()
 {
     std::cout <<"GenerateAverageImage "<<std::endl;
-    int sum =0;
+    float sum =0;
     for(int i =0;i <rawImage.rows;++i)
     {
         for(int j =0;j <rawImage.cols;++j)
         {
-            uchar temp =((rawImages[0].at<uchar>(i,j) >rawImages[1].at<uchar>(i,j))?
+            uchar temp =((rawImages[0].at<uchar>(i,j) <rawImages[1].at<uchar>(i,j))?
                         rawImages[0].at<uchar>(i,j):rawImages[1].at<uchar>(i,j));
-            subDarkImage.at<uchar>(i,j) =((temp >rawImages[2].at<uchar>(i,j))?temp:rawImages[2].at<uchar>(i,j));
+            subDarkImage.at<uchar>(i,j) =((temp <rawImages[2].at<uchar>(i,j))?temp:rawImages[2].at<uchar>(i,j));
             sum +=subDarkImage.at<uchar>(i,j);
         }
     }
-    _avgM =sum/rawImage.rows*rawImage.cols*255;
+    std::cout <<"sum: "<<sum<<std::endl;
+    float temp =rawImage.rows*rawImage.cols*255.0;
+    _avgM =sum/temp;
+    std::cout <<"_avgM: "<<_avgM<<std::endl;
     cv::boxFilter(subDarkImage,averageImage,CV_8UC1,cv::Size(_windowSize,_windowSize));
 }
 
@@ -67,6 +70,8 @@ void MedianFliterDehazor::GenerateDarkImage()
             uchar temp2 =temp1*averageImage.at<uchar>(i,j);
             darkImage.at<uchar>(i,j) =(temp2 <subDarkImage.at<uchar>(i,j)?temp2:subDarkImage.at<uchar>(i,j));
         }
+//    std::cout<<darkImage<<std::endl;
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_median_dark.jpg",darkImage);
 }
 
 void MedianFliterDehazor::GenerateAtmosphericRadiation()
@@ -81,14 +86,16 @@ void MedianFliterDehazor::GenerateAtmosphericRadiation()
     }
     --edgeValue;
 
-    std::cout <<edgeValue<<std::endl;
-    int c=0;
+
+    int c=0,b=0;
     int tempB =0,tempG =0,tempR =0;
 
     for(int i =0;i< darkImage.rows;++i)
     {
         for(int j =0;j< darkImage.cols;++j)
         {
+            if(darkImage.at<uchar>(i,j)<0)
+                b++;
             if(darkImage.at<uchar>(i,j) >= edgeValue)
             {
                 tempB +=(int)(rawImages[0].at<uchar>(i,j));
@@ -98,7 +105,6 @@ void MedianFliterDehazor::GenerateAtmosphericRadiation()
             }
         }
     }
-    std::cout <<c<<std::endl;
     tempB /=c;
     tempG /=c;
     tempR /=c;
@@ -123,22 +129,29 @@ void MedianFliterDehazor::GenerateDehazeImage()
     {
         for(int j=0;j< col;++j)
         {
-            std::cout <<j<<std::endl;
-            int temp_b = _A.b*(rawImages[0].at<uchar>(i,j) -darkImage.at<uchar>(i,j)/(_A.b -darkImage.at<uchar>(i,j)));
-            int temp_g = _A.g*(rawImages[1].at<uchar>(i,j) -darkImage.at<uchar>(i,j)/(_A.g -darkImage.at<uchar>(i,j)));
-            int temp_r = _A.r*(rawImages[2].at<uchar>(i,j) -darkImage.at<uchar>(i,j)/(_A.r -darkImage.at<uchar>(i,j)));
-//            std::cout <<"1"<<std::endl;
+            int temp_b = _A.b*(rawImages[0].at<uchar>(i,j) -darkImage.at<uchar>(i,j));
+            int temp_g = _A.g*(rawImages[1].at<uchar>(i,j) -darkImage.at<uchar>(i,j));
+            int temp_r = _A.r*(rawImages[2].at<uchar>(i,j) -darkImage.at<uchar>(i,j));
+
+            if(_A.b !=darkImage.at<uchar>(i,j))
+                temp_b /=(_A.b -darkImage.at<uchar>(i,j));
+            if(_A.g !=darkImage.at<uchar>(i,j))
+                temp_g /=(_A.g -darkImage.at<uchar>(i,j));
+            if(_A.r !=darkImage.at<uchar>(i,j))
+                temp_r /=(_A.r -darkImage.at<uchar>(i,j));
+
             temp_b = ((temp_b>_max_A)?rawImages[0].at<uchar>(i,j):temp_b);
             temp_g = ((temp_g>_max_A)?rawImages[1].at<uchar>(i,j):temp_g);
             temp_r = ((temp_r>_max_A)?rawImages[2].at<uchar>(i,j):temp_r);
-//            std::cout <<"2"<<std::endl;
+
             temp_b = ((temp_b <0)?0:temp_b);
             temp_g = ((temp_g <0)?0:temp_g);
             temp_r = ((temp_r <0)?0:temp_r);
-//            std::cout <<"3"<<std::endl;
+
             dehaze_b.at<uchar>(i,j) = temp_b;
             dehaze_g.at<uchar>(i,j) = temp_g;
             dehaze_r.at<uchar>(i,j) = temp_r;
+
         }
     }
 

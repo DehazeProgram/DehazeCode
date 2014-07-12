@@ -30,7 +30,6 @@ private:
     cv::Mat averageImage;
     cv::Mat subDarkImage;
     cv::Mat dehazeImage;
-    cv::Mat rawImage_b;
     std::vector<cv::Mat> rawImages;
 
     void Init();
