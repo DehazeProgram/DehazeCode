@@ -25,9 +25,8 @@ DarkImageDehazor::DarkImageDehazor(cv::Mat &img):rawImage(img)
 void DarkImageDehazor::Init()
 {
     _minFliterWindowSize =((rawImage.cols>rawImage.rows)?rawImage.cols:rawImage.rows);
-    _minFliterWindowSize *=0.02;
-    std::cout <<"WindowSize: "<<_minFliterWindowSize<<std::endl;
-    std::cout <<"row: "<<rawImage.rows<<" cols: "<<rawImage.cols<<std::endl;
+    _minFliterWindowSize *=0.018;
+
     darkChannelImage = cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
     dehazeImage      = cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
     transmission   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
@@ -38,6 +37,9 @@ void DarkImageDehazor::Init()
 
 void DarkImageDehazor::Process()
 {
+    std::cout <<"start darkchanneldehaze!"<<std::endl;
+    std::cout <<"WindowSize: "<<_minFliterWindowSize<<std::endl;
+    std::cout <<"row: "<<rawImage.rows<<" cols: "<<rawImage.cols<<std::endl;
     GenerateDarkImage();
     GenerateAtmosphericRadiation();
     GenereteTransmmision();
@@ -66,7 +68,6 @@ void DarkImageDehazor::GenerateAtmosphericRadiation()
     }
     --edgeValue;
 
-    std::cout <<edgeValue<<std::endl;
     int c=0;
     int tempB =0,tempG =0,tempR =0;
     for(int i =0;i< darkChannelImage.rows;++i)
@@ -82,7 +83,6 @@ void DarkImageDehazor::GenerateAtmosphericRadiation()
             }
         }
     }
-    std::cout <<c<<std::endl;
     tempB /=c;
     tempG /=c;
     tempR /=c;
@@ -178,7 +178,7 @@ void DarkImageDehazor::GenerateDehazeImage()
     dehazes.push_back(dehaze_r);
 
     cv::merge(dehazes,dehazeImage);
-    ColorCorrect::AutoColor(dehazeImage,0.01,0.01);
+//    ColorCorrect::AutoColor(dehazeImage,0.01,0.01);
     cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_darkchannel_dehaze.jpg",dehazeImage);
 //    cv::imshow("dehaze",dehazeImage);
 
