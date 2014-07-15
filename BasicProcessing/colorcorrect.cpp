@@ -15,7 +15,9 @@ void ColorCorrect::AutoColor(cv::Mat &image, float s1, float s2)
         cv::split(image,images);
         for(int i=0;i <images.size();++i)
             AutoColor_single(images[i],s1,s2);
+        cv::merge(images,image);
     }
+
 }
 
 void ColorCorrect::GenerateHistogram(std::vector<int> &histo,const cv::Mat &image)
@@ -53,8 +55,8 @@ void ColorCorrect::AutoColor_single(cv::Mat &image, float s1, float s2)
     if(min >0)
         --min;
 
-    while (histo[max] < count*(1 - s2)) {
-        ++max;
+    while (histo[max] > count*(1 - s2)) {
+        --max;
     }
 
     if(max <255)
@@ -68,7 +70,8 @@ void ColorCorrect::AutoColor_single(cv::Mat &image, float s1, float s2)
                 image.at<uchar>(i,j) =max;
             if(image.at<uchar>(i,j) <min)
                 image.at<uchar>(i,j) =min;
-            image.at<uchar>(i,j) = (image.at<uchar>(i,j) - min)*255/(max -min);
+            image.at<uchar>(i,j) = ((image.at<uchar>(i,j) - min)*255)/(max -min);
         }
     }
+
 }

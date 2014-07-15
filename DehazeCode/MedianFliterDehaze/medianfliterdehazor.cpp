@@ -164,8 +164,8 @@ void MedianFliterDehazor::GenerateDehazeImage()
     dehazes.push_back(dehaze_r);
 
     cv::merge(dehazes,dehazeImage);
-//    ColorCorrect::AutoColor(dehazeImage,0.01,0.01);
-    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_median_dehaze.jpg",dehazeImage);
+    ColorCorrect::AutoColor(dehazeImage,0.01,0.01);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\1.bmp_median_dehaze.jpg",dehazeImage);
     //    cv::imshow("dehaze",dehazeImage);
     std::cout <<"generate dehazeimage cost :"<<clock()-startdehazeimage<<std::endl;
     std::cout <<"dehaze finished"<<std::endl;

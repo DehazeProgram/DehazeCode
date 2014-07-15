@@ -27,6 +27,7 @@ void DarkImageDehazor::Init()
     _minFliterWindowSize =((rawImage.cols>rawImage.rows)?rawImage.cols:rawImage.rows);
     _minFliterWindowSize *=0.018;
 
+
     darkChannelImage = cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
     dehazeImage      = cv::Mat(rawImage.rows,rawImage.cols,CV_8UC1,cv::Scalar(0));
     transmission   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
@@ -178,8 +179,9 @@ void DarkImageDehazor::GenerateDehazeImage()
     dehazes.push_back(dehaze_r);
 
     cv::merge(dehazes,dehazeImage);
-//    ColorCorrect::AutoColor(dehazeImage,0.01,0.01);
-    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_darkchannel_dehaze.jpg",dehazeImage);
+//    ColorCorrect::AutoColor(dehazeImage,0.05,0.05);
+//    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\1.bmp_darkchannel_dehaze.jpg",dehazeImage);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform.JPG_darkchannel_dehaze.jpg",dehazeImage);
 //    cv::imshow("dehaze",dehazeImage);
 
     std::cout <<"dehaze finished"<<std::endl;
