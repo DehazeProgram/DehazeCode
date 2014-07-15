@@ -125,15 +125,20 @@ void DarkImageDehazor::GenereteTransmmision()
         }
     }
     Filter::GuideFilter_Single(channelLayers[0],trans_t,transmission,_minFliterWindowSize*4,_eps);
-//    cv::imshow("transmission",transmission);
+
+    //    cv::imshow("transmission",transmission);
 
     //just for imwrite
-    cv::Mat_<float> mt(rawImage.rows,rawImage.cols,255.0);
+    cv::Mat_<float> mt(rawImage.rows,rawImage.cols,255);
+    cv::Mat_<float> n(rawImage.rows,rawImage.cols,1.0/255.0);
     cv::Mat m;
     cv::multiply(transmission,mt,m);
     cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\transmission.jpg",m);
+    ColorCorrect::ContractEnhancement(m,0.01,0.01);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\transmission1.jpg",m);
 
-
+    m.convertTo(m,CV_32F);
+    cv::multiply(n,m,transmission);
     std::cout <<"t generated!"<<std::endl;
 
 }
@@ -180,8 +185,8 @@ void DarkImageDehazor::GenerateDehazeImage()
 
     cv::merge(dehazes,dehazeImage);
 //    ColorCorrect::AutoColor(dehazeImage,0.05,0.05);
-//    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\1.bmp_darkchannel_dehaze.jpg",dehazeImage);
-    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform.JPG_darkchannel_dehaze.jpg",dehazeImage);
+//    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\1.bmp_darkchannel_dehaze_.jpg",dehazeImage);
+    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_darkchannel_dehaze_0.85.jpg",dehazeImage);
 //    cv::imshow("dehaze",dehazeImage);
 
     std::cout <<"dehaze finished"<<std::endl;
