@@ -1,12 +1,10 @@
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-
-TEMPLATE =lib
-
-CONFIG +=staticlib
-
 TARGET = basicprocessing
+CONFIG +=staticlib
+TEMPLATE =lib
+DEFINES += BASICPROCESSING_LIBRARY
 
 HEADERS += filter.h\
 		 colorcorrect.h

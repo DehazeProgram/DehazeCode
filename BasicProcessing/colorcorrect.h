@@ -10,7 +10,8 @@ class ColorCorrect
 public:
     ColorCorrect();
     static void AutoColor(cv::Mat &image, float s1, float s2);
-    static void ContractEnhancement(cv::Mat &image,float s1,float s2);
+    static void AutoContract(cv::Mat &image, float s1,float s2);
+    static void ContractEnhancement(cv::Mat &image, float s1, float s2, float eps);
     static void GenerateHistogram(std::vector<int> &histo, const cv::Mat &image);
 private:
     static void AutoColor_single(cv::Mat &image, float s1, float s2);

@@ -12,8 +12,8 @@ using namespace cv;
 int main()
 {
     time_t start = clock();
-//    DarkImageDehazor darkChannelDehaze(std::string("C:\\hr\\experiment\\tempimage\\images\\1.bmp"),1,0.01,220);
-    DarkImageDehazor darkChannelDehaze(std::string("C:\\hr\\experiment\\tempimage\\images\\IMG_30154.JPG"),1,0.01,220);
+    DarkImageDehazor darkChannelDehaze(std::string("C:\\hr\\experiment\\tempimage\\images\\1.bmp"),1,0.01,220);
+//    DarkImageDehazor darkChannelDehaze(std::string("C:\\hr\\experiment\\tempimage\\images\\IMG_30154.JPG"),1,0.01,220);
 //    DarkImageDehazor darkChannelDehaze(std::string("C:\\hr\\experiment\\tempimage\\images\\nonuniform.JPG"),1,0.01,220);
 
     darkChannelDehaze.Process();

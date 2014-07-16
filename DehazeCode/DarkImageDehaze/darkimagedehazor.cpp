@@ -5,8 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 
 
 DarkImageDehazor::DarkImageDehazor(std::string &imagePath,  float eps, float t, int max_a)
@@ -33,6 +32,7 @@ void DarkImageDehazor::Init()
     transmission   = cv::Mat(rawImage.rows,rawImage.cols,CV_32F, cv::Scalar(0));
 
     cv::split(rawImage,channelLayers);
+    
 
 }
 
@@ -134,7 +134,7 @@ void DarkImageDehazor::GenereteTransmmision()
     cv::Mat m;
     cv::multiply(transmission,mt,m);
     cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\transmission.jpg",m);
-    ColorCorrect::ContractEnhancement(m,0.01,0.01);
+    ColorCorrect::ContractEnhancement(m,0.01,0.01,0.15);
     cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\transmission1.jpg",m);
 
     m.convertTo(m,CV_32F);
@@ -184,6 +184,8 @@ void DarkImageDehazor::GenerateDehazeImage()
     dehazes.push_back(dehaze_r);
 
     cv::merge(dehazes,dehazeImage);
+    std::cout <<"haha"<<std::endl;
+    ColorCorrect::AutoContract(dehazeImage,0.01,0.01);
 //    ColorCorrect::AutoColor(dehazeImage,0.05,0.05);
 //    cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\1.bmp_darkchannel_dehaze_.jpg",dehazeImage);
     cv::imwrite("C:\\hr\\experiment\\tempimage\\images\\nonuniform_darkchannel_dehaze_0.85.jpg",dehazeImage);
