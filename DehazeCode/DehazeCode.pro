@@ -34,4 +34,3 @@ else:unix: LIBS += -LC:/OSGeo4W64/lib/ -lopencv_core -lopencv_highgui -lopencv_g
 
 INCLUDEPATH += $$PWD/../BasicProcessing
 DEPENDPATH += $$PWD/../BasicProcessing
->>>>>>> 0fc29d294ed1556528b8b7ceba2deb4adc72e725
