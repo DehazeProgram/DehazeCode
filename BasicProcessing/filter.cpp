@@ -41,7 +41,7 @@ void Filter::DarkImageFilter(cv::Mat& src, int windowsize, cv::Mat& dst)
 
 void Filter::MinFilter_2D(cv::Mat &src, cv::Mat &dst, int windowsize)
 {
-    CV_Assert(src.rows == dst.rows && src.cols ==dst.cols);
+    CV_Assert(src.rows == dst.rows && src.cols ==dst.cols && src.channels() ==1);
     int r = windowsize/2;
     cv::Mat src_border;
     cv::copyMakeBorder(src,src_border,r,r,r,r,src.type(),cv::Scalar(255));
@@ -132,6 +132,99 @@ void Filter::MinFilter_2D(cv::Mat &src, cv::Mat &dst, int windowsize)
 
 
 
+void Filter::MaxFilter_2D(cv::Mat &src, cv::Mat &dst, int windowsize)
+{
+    CV_Assert(src.rows == dst.rows && src.cols ==dst.cols && src.channels() ==1);
+    int r = windowsize/2;
+    cv::Mat src_border;
+    cv::copyMakeBorder(src,src_border,r,r,r,r,src.type(),cv::Scalar(0));
+    std::deque< std::deque<point> > col_maxs;
+    int row =src_border.rows;
+    int col =src_border.cols;
+
+    /*********init col_maxs************/
+    for(int j =0;j <col;++j)
+    {
+        std::vector<uchar> vec,dst;
+        std::deque<int> tmaxs;
+        std::deque<point> cmaxs;
+        for(int i=0;i <=2*r;++i)
+            vec.push_back(src_border.at<uchar>(i,j));
+        Filter::MaxFilter_1D(vec,dst,vec.size(),tmaxs);
+        if(tmaxs.size() ==0)
+            cmaxs.push_back((point(2*r,j)));
+        else{
+            while(tmaxs.size()>0)
+            {
+//                std::cout <<"ha"<<std::endl;
+                int i =tmaxs.front();
+                cmaxs.push_back(point(i,j));
+                tmaxs.pop_front();
+            }
+        }
+        col_maxs.push_back(cmaxs);
+    }
+
+    /***************compute mins *******************/
+    for(int i=r;i<row-r;++i)
+    {
+        int i_max =i+r;
+        int i_min =i-r;
+        std::vector<uchar> vec,col_dst;
+
+        for(int a=0;a< col_maxs.size();++a)
+        {
+            std::deque<point> v =col_maxs[a];
+            point p =v[0];
+            vec.push_back(src_border.at<uchar>(p.x,p.y));
+        }
+
+        std::deque<int> tmins;
+        Filter::MaxFilter_1D(vec,col_dst,windowsize,tmins);
+        for(int j=r, a=0;j<col-r, a<col_dst.size();++j, ++a)
+        {
+            dst.at<uchar>(i-r,j-r) =col_dst[a];
+        }
+        //move col_mins to next line
+        if(i ==row-r-1)
+            break;
+
+        for(int j =0;j< col;++j)
+        {
+            if(src_border.at<uchar>(i_max+1,j) <src_border.at<uchar>(i_max,j))
+            {
+                col_maxs[j].push_back(point(i_max,j));
+                if(col_maxs[j].front().x <i_min)
+                    col_maxs[j].pop_front();
+                if(col_maxs[j].size() ==0)
+                {
+                    col_maxs[j].push_back(point(i_max+1,j));
+                }
+            }
+            else
+            {
+                while(col_maxs[j].size()>0)
+                {
+                    if(src_border.at<uchar>(i_max+1,j)<=
+                            src_border.at<uchar>(col_maxs[j].back().x,col_maxs[j].back().y))
+                    {
+                        if(col_maxs[j].front().x <i_min)
+                            col_maxs[j].pop_front();
+                        break;
+                    }
+                    col_maxs[j].pop_back();
+                }
+                if(col_maxs[j].size() ==0)
+                {
+                    col_maxs[j].push_back(point(i_max+1,j));
+                }
+            }
+        }
+    }
+}
+
+
+
 
 
 
@@ -166,7 +259,6 @@ void Filter::MinFilter_1D(std::vector<T> &vec, std::vector<T>&dst,int windowsize
     }
     anchor =(mins.size() >0? mins.front(): vec.size() -1);
     dst[vec.size() -windowsize] = vec[anchor];
-
 }
 
 //minFilter
@@ -363,6 +455,40 @@ void Filter::GuideFilter_Multi(std::vector< cv::Mat > &guidedImages, cv::Mat &so
                     meanB.at<float>(i,j);
         }
     }
+}
+
+
+template<typename T>
+void Filter::MaxFilter_1D(std::vector<T> &vec, std::vector<T> &dst, int windowsize, std::deque<int> &maxs)
+{
+    int anchor=0;
+    dst.resize(vec.size()-windowsize+1);
+    maxs.clear();
+    //    std::cout <<dst.size()<<std::endl;
+    for(int i = 1;i < vec.size();++i)
+    {
+        if(i >=windowsize)
+            dst[i-windowsize] =vec[maxs.size()>0 ? maxs.front():(i-1)];
+        if(vec[i] < vec[i-1])
+        {
+            maxs.push_back(i-1);
+        }
+        else
+        {
+            while( maxs.size() >0)
+            {
+                if(vec[i] <= vec[maxs.back()])
+                    break;
+                maxs.pop_back();
+            }
+        }
+        while(maxs.size() >0){
+            if( i == windowsize +maxs.front()) maxs.pop_front();
+            else break;
+        }
+    }
+    anchor =(maxs.size() >0? maxs.front(): vec.size() -1);
+    dst[vec.size() -windowsize] = vec[anchor];
 }
 
 

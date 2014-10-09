@@ -39,6 +39,7 @@ private:
     float _eps;
     float _t0;
     ARadiation_DC _A;
+    bool _optimizedcontrast;
 //    Filter filter;
 
     void Init();

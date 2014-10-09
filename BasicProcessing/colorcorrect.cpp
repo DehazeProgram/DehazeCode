@@ -132,6 +132,7 @@ void ColorCorrect::ContractEnhancement(cv::Mat &image, float s1, float s2,float 
 
     min *=eps;
     std::cout <<"min: "<<min<<std::endl;
+    std::cout <<"max: "<<max<<std::endl;
     for(int i =0;i <image.rows;++i)
     {
         for(int j =0;j <image.cols;++j)

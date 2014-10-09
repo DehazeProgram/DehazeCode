@@ -21,6 +21,10 @@ public:
 //    void guideFilter(cv::Mat &guideI, cv::Mat &inputI, cv::Mat &dst, int radius, float eps);
     static void GuideFilter_Single(cv::Mat& guidedImage, cv::Mat& source,cv::Mat& output,int radius, float epsilon);
     static void GuideFilter_Multi(std::vector< cv::Mat >& guidedImages, cv::Mat& sourse, cv::Mat& output, int radius, float epsilon);
+    template<typename T>
+    static void MaxFilter_1D(std::vector<T> &vec, std::vector<T> &dst, int windowsize, std::deque<int> &maxs=std::deque<int>());
+    static void MaxFilter_2D(cv::Mat &src,cv::Mat &dst,int windowsize);
+    static void MinFilter_2D(cv::Mat &src,cv::Mat &dst,int windowsize);
 private:
     template<typename T>
     static int max(const T& a,const T& b){
@@ -37,9 +41,7 @@ private:
     }
     template<typename T>
     static void MinFilter_1D(std::vector<T> &vec, std::vector<T>&dst,int windowsize,std::deque<int> &mins=std::deque<int>());
-
-    static void MinFilter_2D(cv::Mat &src,cv::Mat &dst,int windowsize);
-
+//    static void MinFilter_2D(cv::Mat &src,cv::Mat &dst,int windowsize);
     static void MakeDepth32f(cv::Mat& source, cv::Mat& output);
 
 };
